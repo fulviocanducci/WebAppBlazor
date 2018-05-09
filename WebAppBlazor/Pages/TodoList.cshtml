@@ -1,0 +1,84 @@
+﻿@page "/todolist"
+@inject HttpClient Http
+@using Microsoft.AspNetCore.Blazor
+<h3>Cadastro - Items de uma lista</h3>
+<div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" bind="Title" placeholder="Digite o titulo" aria-label="Digite o titulo" aria-describedby="basic-addon2" />
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" onclick="@AddCreditAsync">Adicionar</button>
+        </div>
+    </div>
+</div>
+<div>
+    @if (Credits == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width:10%">Id</th>
+                    <th style="width:90%">Título</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Credits)
+                {
+                    <tr>
+                        <td>@item.id</td>
+                        <td>@item.title</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</div>
+
+<button onclick="@InitListAsync">Atualizar</button>
+@functions{
+
+    public const string BaseUrl = "http://localhost:8181/api/";
+
+    public string GetBaseUrl(string url)
+    {
+        return $"{BaseUrl}{url}";
+    }
+
+    public class Credit
+    {
+        public int id { get; set; }
+        public string title { get; set; }
+    }
+
+    Credit[] Credits;
+
+    string Title = "";
+
+    protected async Task AddCreditAsync()
+    {
+        if (!string.IsNullOrEmpty(Title))
+        {
+            Credit cr = new Credit();
+            cr.title = Title;
+            await Http.SendJsonAsync(HttpMethod.Post, GetBaseUrl("credits"), cr);
+            Title = "";
+            await InitListAsync();
+        }
+    }
+
+    protected override async Task OnInitAsync()
+    {
+        await InitListAsync();
+    }
+
+    async Task InitListAsync()
+    {
+        Credits = await Http.GetJsonAsync<Credit[]>(GetBaseUrl("credits"));
+        StateHasChanged();
+    }
+
+}
