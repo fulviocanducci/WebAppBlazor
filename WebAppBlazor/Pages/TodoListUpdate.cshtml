@@ -1,0 +1,51 @@
+﻿@page "/todolistupdate/{id:int}"
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+@using Microsoft.AspNetCore.Blazor
+@using Models
+@using static Models.UrlApiWeb
+
+<h3>Cadastro - Alterar</h3>
+<div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" bind="title" placeholder="Digite o titulo" aria-label="Digite o titulo" aria-describedby="basic-addon2" />
+        <div class="input-group-append">
+            <button class="btn btn-outline-success" type="button" onclick="@SaveAsync">Alterar</button>
+            <button class="btn btn-outline-danger" type="button" onclick="@Cancel">Voltar</button>
+        </div>
+    </div>
+</div>
+@functions  {
+
+    [Microsoft.AspNetCore.Blazor.Components.Parameter]
+    int? id {get;set;} = 0;
+
+    string title;
+    Credit credit = null;
+
+    protected override async Task OnInitAsync()
+    {
+        await LoadItemAsync();
+    }
+
+    protected async Task LoadItemAsync()
+    {
+        credit = await Http.GetJsonAsync<Credit>(GetBaseUrl($"credits/{id}"));
+        title = credit.Title;
+        StateHasChanged();
+    }
+
+    async Task SaveAsync()
+    {
+        credit.Id = id.Value;
+        credit.Title = title;
+        await Http.SendJsonAsync(HttpMethod.Put, GetBaseUrl($"credits/{id}"), credit);
+        Cancel();
+    }
+
+    void Cancel()
+    {
+        UriHelper.NavigateTo("/todolist");
+    }
+
+}

@@ -1,12 +1,16 @@
 ﻿@page "/todolist"
 @inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
 @using Microsoft.AspNetCore.Blazor
+@using Models
+@using static Models.UrlApiWeb
+
 <h3>Cadastro - Items de uma lista</h3>
 <div>
     <div class="input-group mb-3">
-        <input type="text" class="form-control" bind="Title" placeholder="Digite o titulo" aria-label="Digite o titulo" aria-describedby="basic-addon2" />
+        <input type="text" class="form-control" bind="title" placeholder="Digite o titulo" aria-label="Digite o titulo" aria-describedby="basic-addon2" />
         <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" onclick="@AddCreditAsync">Adicionar</button>
+            <button class="btn btn-outline-success" type="button" onclick="@AddCreditAsync">Adicionar</button>
         </div>
     </div>
 </div>
@@ -20,16 +24,20 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width:10%">Id</th>
-                    <th style="width:90%">Título</th>
+                    <th style="width:10%;text-align:center">Id</th>
+                    <th style="width:80%;text-align:center">Título</th>
+                    <th style="width:10%;text-align:center">...</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Credits)
                 {
                     <tr>
-                        <td>@item.id</td>
-                        <td>@item.title</td>
+                        <td style="text-align:center">@item.Id.ToString("00000")</td>
+                        <td style="text-align:left">@item.Title</td>
+                        <td style="text-align:center">
+                            <a href='/todolistupdate/@item.Id' class="btn btn-default">Alterar</a>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -38,34 +46,21 @@
 
 </div>
 
-<button onclick="@InitListAsync">Atualizar</button>
+<button onclick="@InitListAsync" class="btn btn-primary">Atualizar</button>
 @functions{
-
-    public const string BaseUrl = "http://localhost:8181/api/";
-
-    public string GetBaseUrl(string url)
-    {
-        return $"{BaseUrl}{url}";
-    }
-
-    public class Credit
-    {
-        public int id { get; set; }
-        public string title { get; set; }
-    }
 
     Credit[] Credits;
 
-    string Title = "";
+    string title = "";
 
     protected async Task AddCreditAsync()
     {
-        if (!string.IsNullOrEmpty(Title))
+        if (!string.IsNullOrEmpty(title))
         {
             Credit cr = new Credit();
-            cr.title = Title;
+            cr.Title = title;
             await Http.SendJsonAsync(HttpMethod.Post, GetBaseUrl("credits"), cr);
-            Title = "";
+            title = "";
             await InitListAsync();
         }
     }
@@ -77,8 +72,9 @@
 
     async Task InitListAsync()
     {
-        Credits = await Http.GetJsonAsync<Credit[]>(GetBaseUrl("credits"));
+        Credits = null;
         StateHasChanged();
+        Credits = await Http.GetJsonAsync<Credit[]>(GetBaseUrl("credits"));
     }
 
 }

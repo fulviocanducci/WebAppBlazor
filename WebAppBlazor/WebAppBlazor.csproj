@@ -14,7 +14,24 @@
   <ItemGroup>    
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="0.3.0" />    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Models\Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BlazorGenerate Remove="Pages\TodoListUpdate.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\TodoListUpdate.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\TodoListUpdate.cshtml" />
   </ItemGroup>  
 
 </Project>
